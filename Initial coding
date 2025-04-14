@@ -1,0 +1,8 @@
+def get_input():
+  date = input("Please enter date of transaction (MM/DD/YYYY): ")
+  description = input("Enter description: ")
+
+  debits = []
+  credits = []
+
+  print(
