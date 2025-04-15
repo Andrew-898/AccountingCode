@@ -5,4 +5,18 @@ def get_input():
   debits = []
   credits = []
 
-  print(
+  print("\nEnter debit entries (leave blank to quit):")
+  while true: 
+    account = input("Please enter first account: ")
+    if account == "":
+        break
+    amount = float(input("Amount: "))
+    debits.append((account, amount))
+
+  print("\nEnter credit entries (leave blank to quit):")
+  while true: 
+    account = input("Please enter first account: ")
+    if account == "":
+        break
+    amount = float(input("Amount: "))
+    credits.append((account, amount))
