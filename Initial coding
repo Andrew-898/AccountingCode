@@ -1,22 +1,100 @@
-def get_input():
-  date = input("Please enter date of transaction (MM/DD/YYYY): ")
-  description = input("Enter description: ")
+from collections import defaultdict
 
-  debits = []
-  credits = []
+# Capitalize and clean each word in the account name
+def capitalize_account(account):
+    return account.strip().title()
 
-  print("\nEnter debit entries (leave blank to quit):")
-  while true: 
-    account = input("Please enter first account: ")
-    if account == "":
+def get_entry():
+    date = input("Enter date (YYYY-MM-DD): ")
+    description = input("Enter description: ")
+
+    debits = []
+    credits = []
+
+    # Get multiple debits
+    print("\nEnter debit entries (type 'done' when finished):")
+    while True:
+        debit_account = input("  Debit account: ")
+        if debit_account.lower() == 'done':
+            break
+        debit_amount_input = input("  Amount: ").replace(",", "").replace("$", "")
+        debit_amount = float(debit_amount_input)
+        debits.append((capitalize_account(debit_account), debit_amount))  # Capitalize the account
+
+    # Get multiple credits
+    print("\nEnter credit entries (type 'done' when finished):")
+    while True:
+        credit_account = input("  Credit account: ")
+        if credit_account.lower() == 'done':
+            break
+        credit_amount_input = input("  Amount: ").replace(",", "").replace("$", "")
+        credit_amount = float(credit_amount_input)
+        credits.append((capitalize_account(credit_account), credit_amount))  # Capitalize the account
+
+    # Validate that debits and credits match
+    total_debits = sum(amount for _, amount in debits)
+    total_credits = sum(amount for _, amount in credits)
+
+    if total_debits != total_credits:
+        print("\nError: Total debit and credit amounts do not match!")
+        print(f"  Total Debit: {total_debits}, Total Credit: {total_credits}")
+        return None
+
+    return {
+        "date": date,
+        "description": description,
+        "debits": debits,
+        "credits": credits
+    }
+
+def print_entry(entry):
+    # Print the original journal entry (date, description, debits, and credits)
+    print(f"\nDate: {entry['date']}")
+    print(f"Description: {entry['description']}\n")
+
+    for account, amount in entry['debits']:
+        print(f"  {account:<25} ${amount:,.2f}")  # No "Debit:" label
+
+    for account, amount in entry['credits']:
+        print(f"    {account:<25} ${amount:,.2f}")  # No "Credit:" label and indentation
+
+def print_account_summary(journal):
+    # Create dictionaries to store totals for debits and credits
+    debit_totals = defaultdict(float)
+    credit_totals = defaultdict(float)
+
+    for entry in journal:
+        for account, amount in entry['debits']:
+            debit_totals[account] += amount
+        for account, amount in entry['credits']:
+            credit_totals[account] += amount
+
+    # Print the summary
+    print("\n Journal Summary:")
+
+    # Print debits
+    print("\nDebits:")
+    for account, total in debit_totals.items():
+        print(f"  {account:<25} ${total:,.2f}")
+
+    # Print credits
+    print("\nCredits:")
+    for account, total in credit_totals.items():
+        print(f"  {account:<25} ${total:,.2f}")
+
+# Main loop
+journal = []
+while True:
+    entry = get_entry()
+    if entry:
+        journal.append(entry)
+        print_entry(entry)  # Print the original journal entry after input
+
+    cont = input("\nAdd another entry? (y/n): ").lower()
+    if cont != 'y':
         break
-    amount = float(input("Amount: "))
-    debits.append((account, amount))
 
-  print("\nEnter credit entries (leave blank to quit):")
-  while true: 
-    account = input("Please enter first account: ")
-    if account == "":
-        break
-    amount = float(input("Amount: "))
-    credits.append((account, amount))
+# Print the journal account summary
+print_account_summary(journal)
+
+print("\n Journal entry input complete.")
